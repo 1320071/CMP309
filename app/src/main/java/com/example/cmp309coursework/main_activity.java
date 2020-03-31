@@ -7,19 +7,27 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.cmp309coursework.database_helper;
 
 public class main_activity extends AppCompatActivity implements View.OnClickListener
 {
+    database_helper test = new database_helper(this);
+
+    // test;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        Log.d("Main Activity", "Start");
         // Draw the screen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -33,27 +41,30 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
         play.setOnClickListener(this);
         settings.setOnClickListener(this);
         scores.setOnClickListener(this);
+        Log.d("Main Activity", "Set on click listeners");
 
         // Checks if user has allowed location data and if not requests it
-        if ((ActivityCompat.checkSelfPermission(main_activity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != 0))
+        if ((ActivityCompat.checkSelfPermission(main_activity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED))
         {
+            Log.d("Main Activity", "Showing dialogue for permissions");
             final AlertDialog dialog = new AlertDialog.Builder(this, R.style.AppTheme).create();
             dialog.setTitle("Permissions required");
-            dialog.setMessage("Hi! This game uses location data to figure out where to place you on the map\nIt isn't essential and we aren't using it to track you so don't feel\npressured to accept");
-            dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Change permissions", new DialogInterface.OnClickListener()
+            dialog.setMessage("Hi! This game uses location data to figure out where to place you on the map.\n\nIt isn't essential and we aren't using it to track you so don't feel pressured to accept");
+            dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Continue", new DialogInterface.OnClickListener()
             {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i)
                 {
-                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET}, R.string.app_name);
+                    Log.d("Main Activity", "Asking for permissions");
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET}, R.string.app_name); // TODO: confirm these are all the perms I need
                 }
             });
+
             dialog.show();
         }
 
         final LocationListener listener = new LocationListener()
         {
-
             @Override
             public void onLocationChanged(Location location)
             {
@@ -100,6 +111,5 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
                 throw new IllegalStateException("Unexpected value: " + v.getId());
         }
     }
-
 
 }
