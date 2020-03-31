@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">CMP309 Coursework</string>
+    <string name="location_message">Please allow this application to access location data</string>
+    <string name="permission_warning">Some features may be unavailable if all permissions are not accepted</string>
+    <string name="clear_scores_warning">This will delete all the scores stored on this device WARNING: THIS CANNOT BE UNDONE!</string>
 </resources>
