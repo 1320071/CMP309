@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 public class database_helper extends SQLiteOpenHelper {
@@ -34,7 +35,7 @@ public class database_helper extends SQLiteOpenHelper {
         return s.toString();
     }
 
-    private database_helper(Context context){
+    public database_helper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -55,33 +56,6 @@ public class database_helper extends SQLiteOpenHelper {
 
     }
 
-    // Saves a single text string to SQLite database, overwriting existing one in row 0
-//    public void saveText(String text){
-//        // Check the number of rows
-//        SQLiteDatabase db = this.getReadableDatabase();
-//
-//        // Get all table rows
-//        Cursor result = db.query(TABLE_NAME, COLUMN_NAMES, null, null, null, null, null, null);
-//        int count = 0;
-//        if(result != null) {
-//            // See how many entries there are
-//            count = result.getCount();
-//            db.close();
-//            db = getWritableDatabase();
-//            ContentValues row = new ContentValues();
-//            // Prepare a row for saving, use 0 as the ID
-//            row.put(COLUMN_NAMES[0], 0);
-//            row.put(COLUMN_NAMES[1], text);
-//            // if no rows, INSERT one
-//            if(count == 0){
-//                db.insert(TABLE_NAME, null, row);
-//            } else { // else update existing one
-//                db.update(TABLE_NAME, row, "ID = '0'", null);
-//            }
-//            db.close();
-//        }
-//    }
-
     public void addExampleData() {
         // Check the number of rows
         SQLiteDatabase db = getWritableDatabase();
@@ -98,21 +72,27 @@ public class database_helper extends SQLiteOpenHelper {
         else
             { Log.d("DB","Example data added"); };
 
+
         db.close();
     }
 
-    public String loadText(){
+    public String getScores(){
         // check the number of rows
+        createCreateString();
+        addExampleData();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor result = db.query(TABLE_NAME, COLUMN_NAMES, null, null, null, null, null, null);
-        int count = 0;
+        String[] displayColumns = {"Nickname", "Score"};
 
+        Cursor result = db.query(TABLE_NAME, displayColumns, null, null, null, null, null, null);
+        int count = 0;
+        db.close();
         // if there is text to load, return it, otherwise return error message
         if(result.getCount() > 0){
             result.moveToPosition(0);
-            return result.getString(1);
+            return (result.getString(1) + "\n");
+
         } else {
-            return "NO TEXT STORED IN DB!";
+            return "No high scores!";
         }
     }
 }
