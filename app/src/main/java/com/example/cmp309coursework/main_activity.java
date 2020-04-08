@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -18,11 +19,17 @@ import android.widget.Button;
 
 import com.example.cmp309coursework.database_helper;
 
+import java.util.List;
+import java.util.Map;
+
 public class main_activity extends AppCompatActivity implements View.OnClickListener
 {
-    database_helper test = new database_helper(this);
+    final String TAG = "MAIN";
 
-    // test;
+    public double latitude;
+    public double longitude;
+    public String country;
+    public String countryPrefix;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -33,6 +40,9 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_main);
 
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        database_helper database = new database_helper(this);
+
+        Log.d("DB", database.createCreateString());
 
         // Set button listeners
         final Button play = findViewById(R.id.playBttn);
@@ -63,43 +73,19 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
             dialog.show();
         }
 
-        final LocationListener listener = new LocationListener()
-        {
-            @Override
-            public void onLocationChanged(Location location)
-            {
-                double latitude = location.getLatitude();
-                double longitude = location.getLongitude();
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras)
-            {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider)
-            {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider)
-            {
-
-            }
-
-        };
     }
 
     @Override
     public void onClick(View v)
     {
+        Intent intent;
         switch (v.getId())
         {
             case R.id.playBttn:
-                startActivity(new Intent(main_activity.this, activity_game.class));
+                intent = new Intent (main_activity.this, activity_game.class);
+                intent.putExtra("country", country);
+                intent.putExtra("prefix", countryPrefix);
+                startActivity(intent);
                 break;
             case R.id.settingsBttn:
                 startActivity(new Intent(main_activity.this, activity_settings.class));
@@ -111,5 +97,55 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
                 throw new IllegalStateException("Unexpected value: " + v.getId());
         }
     }
+
+    //public List getCountry()
+    //{
+
+        //public List<Address> getFromLocation(double latitude, double longitude, int maxResults)
+    //}
+
+    final LocationListener listener = new LocationListener()
+    {
+        @Override
+        public void onLocationChanged(Location location)
+        {
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+
+            if (((latitude >= 25.0) && (latitude <= 48.0)) && ((longitude <= -78.0) && (longitude >= -125.0)))
+            {
+                country = "USA";
+                countryPrefix = "USS";
+            }
+            else if (((latitude <= 58.0) && (latitude >= 52.0)) && ((longitude <= -5.0) && (longitude >= -3.0)))
+            {
+                country = "UK";
+                countryPrefix = "HMS";
+            }
+            else if (((latitude <= -46.0) && (latitude >= -37.0)) && ((longitude >= 137.0) && (longitude <= 169.0)))
+            {
+                country = "New Zealand";
+                countryPrefix = "HMNZS";
+            }
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras)
+        {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider)
+        {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider)
+        {
+
+        }
+    };
 
 }

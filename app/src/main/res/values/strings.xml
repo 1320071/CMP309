@@ -3,4 +3,7 @@
     <string name="location_message">Please allow this application to access location data</string>
     <string name="permission_warning">Some features may be unavailable if all permissions are not accepted</string>
     <string name="clear_scores_warning">This will delete all the scores stored on this device WARNING: THIS CANNOT BE UNDONE!</string>
+    <string name="end_screen">Well done! Your final score is:</string>
+    <string name="high_scores">High scores!!</string>
+    <string name="end_screen_button">Back to menu</string>
 </resources>

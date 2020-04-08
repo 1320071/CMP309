@@ -19,7 +19,7 @@ public class database_helper extends SQLiteOpenHelper {
     private static database_helper instance = null;
 
     // Build a table creation query string
-    private String createCreateString(){
+    public String createCreateString(){
         StringBuilder s = new StringBuilder("CREATE TABLE " + TABLE_NAME + " (");
 
         for (int i = 0; i < database_helper.COLUMN_NAMES.length; i++) {
@@ -31,8 +31,10 @@ public class database_helper extends SQLiteOpenHelper {
             } else {
                 s.append(");");
             }
+
         }
         return s.toString();
+
     }
 
     public database_helper(Context context){
@@ -49,6 +51,7 @@ public class database_helper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(createCreateString());
+        Log.e("DB", createCreateString());
     }
 
     @Override

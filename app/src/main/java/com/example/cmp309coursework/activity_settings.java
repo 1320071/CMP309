@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class activity_settings extends AppCompatActivity implements View.OnClickListener
 {
+    final String TAG = "SETTINGS";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {

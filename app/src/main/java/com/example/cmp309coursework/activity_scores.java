@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class activity_scores extends AppCompatActivity implements View.OnClickListener
 {
+    final String TAG = "SCORES";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
