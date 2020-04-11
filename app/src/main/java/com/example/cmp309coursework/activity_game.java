@@ -76,7 +76,6 @@ public class activity_game extends AppCompatActivity implements View.OnClickList
                         startActivity(new Intent(activity_game.this, main_activity.class));
                     }
                 });
-
             }
         };
     }
