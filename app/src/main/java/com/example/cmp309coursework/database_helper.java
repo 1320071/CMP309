@@ -79,23 +79,24 @@ public class database_helper extends SQLiteOpenHelper {
 
         if (count == 0) {
             Log.d(TAG, "Adding example data");
-            int newItems = 0;
 
-            //String[] exampleNames = {"HMS Boaty McBoatface", "USS Enterprise", "USS Voyager", "HMS Interceptor", "HMS Lydia"};
-            //int[] exampleScores = {200, 50, 214, 3, 158};
+            String[] exampleNames = {"HMS Boaty McBoatface", "USS Enterprise", "USS Voyager", "HMS Interceptor", "HMS Lydia"};
+            int[] exampleScores = {200, 50, 214, 3, 158};
 
             ContentValues row = new ContentValues();
-            // Prepare a row for saving, use 0 as the ID
-            row.put(COLUMN_NAMES[0], 0);
-            row.put(COLUMN_NAMES[1], "HMS Boaty McBoatface");
-            row.put(COLUMN_NAMES[2], 2000);
-
-
-            // Returns long, the row ID of the newly inserted row or, -1 if an error occurred
-            if (db.insertOrThrow(TABLE_NAME, null, row) == -1)
-            { Log.e(TAG, "Insert Method threw an error"); }
-            else
-            { Log.d(TAG,"Example data added"); }
+            // Prepare a row for saving
+            for(int newItems = 0; newItems != 5; newItems++)
+            {
+                row.put(COLUMN_NAMES[0], newItems);
+                row.put(COLUMN_NAMES[1], exampleNames[newItems]);
+                row.put(COLUMN_NAMES[2], exampleScores[newItems]);
+                // Returns long, the row ID of the newly inserted row or, -1 if an error occurred
+                if (db.insertOrThrow(TABLE_NAME, null, row) == -1)
+                { Log.e(TAG, "Insert Method threw an error"); }
+                else
+                { Log.d(TAG,"Example data added"); }
+                //row = new ContentValues();
+            }
         }
         else
         {
