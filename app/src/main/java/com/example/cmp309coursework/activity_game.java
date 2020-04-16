@@ -19,17 +19,20 @@ public class activity_game extends AppCompatActivity implements View.OnClickList
 {
     final String TAG = "GAME";
 
-    Map locationMap;
+    String prefix = "";
+    String country = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "Created screen");
 
         Intent intent = getIntent();
         if (intent.getExtras() != null)
         {
-            locationMap.put("country", intent.getStringExtra("country"));
-            locationMap.put("prefix", intent.getStringExtra("prefix"));
+            country = intent.getStringExtra("country");
+            prefix = intent.getStringExtra("prefix");
+            Log.d(TAG, "Got intent");
         }
         else {
             Toast error = Toast.makeText(this, "An error has occured", Toast.LENGTH_SHORT);

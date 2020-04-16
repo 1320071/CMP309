@@ -12,6 +12,7 @@ import android.location.Address;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -42,7 +43,7 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         database_helper database = new database_helper(this);
 
-        Log.d("DB", database.createCreateString());
+        Log.d(TAG, "Created db in main:"+ database.createCreateString());
 
         // Set button listeners
         final Button play = findViewById(R.id.playBttn);
@@ -51,12 +52,12 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
         play.setOnClickListener(this);
         settings.setOnClickListener(this);
         scores.setOnClickListener(this);
-        Log.d("Main Activity", "Set on click listeners");
+        Log.d(TAG, "Set on click listeners");
 
         // Checks if user has allowed location data and if not requests it
         if ((ActivityCompat.checkSelfPermission(main_activity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED))
         {
-            Log.d("Main Activity", "Showing dialogue for permissions");
+            Log.d(TAG, "Showing dialogue for permissions");
             final AlertDialog dialog = new AlertDialog.Builder(this, R.style.AppTheme).create();
             dialog.setTitle("Permissions required");
             dialog.setMessage("Hi! This game uses location data to figure out where to place you on the map.\n\nIt isn't essential and we aren't using it to track you so don't feel pressured to accept");
@@ -65,7 +66,7 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i)
                 {
-                    Log.d("Main Activity", "Asking for permissions");
+                    Log.d(TAG, "Asking for permissions");
                     requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET}, R.string.app_name); // TODO: confirm these are all the perms I need
                 }
             });
@@ -86,54 +87,60 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
                 intent.putExtra("country", country);
                 intent.putExtra("prefix", countryPrefix);
                 startActivity(intent);
+                Log.d(TAG, "Sent intent to game");
                 break;
             case R.id.settingsBttn:
                 startActivity(new Intent(main_activity.this, activity_settings.class));
+                Log.d(TAG, "Sent intent to settings");
                 break;
             case R.id.scoreBttn:
                 startActivity(new Intent(main_activity.this, activity_scores.class));
+                Log.d(TAG, "Sent intent to scores");
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + v.getId());
         }
     }
 
-    //public List getCountry()
-    //{
-
-        //public List<Address> getFromLocation(double latitude, double longitude, int maxResults)
-    //}
-
     final LocationListener listener = new LocationListener()
     {
         @Override
-        public void onLocationChanged(Location location)
+        public void onLocationChanged(final Location location)
         {
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
+            new Thread(new Runnable(){
+                public void run(){
+                    try
+                    {
+                        Log.d(TAG, "Set up location listener");
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                        Log.d(TAG, "Got lat and long");
 
-            if (((latitude >= 25.0) && (latitude <= 48.0)) && ((longitude <= -78.0) && (longitude >= -125.0)))
-            {
-                country = "USA";
-                countryPrefix = "USS";
-            }
-            else if (((latitude <= 58.0) && (latitude >= 52.0)) && ((longitude <= -5.0) && (longitude >= -3.0)))
-            {
-                country = "UK";
-                countryPrefix = "HMS";
-            }
-            else if (((latitude <= -46.0) && (latitude >= -37.0)) && ((longitude >= 137.0) && (longitude <= 169.0)))
-            {
-                country = "New Zealand";
-                countryPrefix = "HMNZS";
-            }
+                        if (((latitude >= 25.0) && (latitude <= 48.0)) && ((longitude <= -78.0) && (longitude >= -125.0))) {
+                            country = "USA";
+                            countryPrefix = "USS";
+                        } else if (((latitude <= 58.0) && (latitude >= 52.0)) && ((longitude <= -5.0) && (longitude >= -3.0))) {
+                            country = "UK";
+                            countryPrefix = "HMS";
+                        } else if (((latitude <= -46.0) && (latitude >= -37.0)) && ((longitude >= 137.0) && (longitude <= 169.0))) {
+                            country = "New Zealand";
+                            countryPrefix = "HMNZS";
+                        }
+                        Log.d(TAG, "Got country prefix");
+                    }
+                    catch(Error e)
+                    {
+                        Log.e(TAG, "error getting location: " + e);
+                    }
+                }
+            });
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras)
         {
 
-        }
+       }
 
         @Override
         public void onProviderEnabled(String provider)
@@ -144,7 +151,9 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
         @Override
         public void onProviderDisabled(String provider)
         {
-
+            Log.d(TAG,"Set default prefix");
+            country = "United Kingdom";
+            countryPrefix = "HMS";
         }
     };
 
