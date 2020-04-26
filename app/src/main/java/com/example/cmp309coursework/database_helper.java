@@ -19,6 +19,7 @@ public class database_helper extends SQLiteOpenHelper {
     private static final String[] COLUMN_TYPE = {"INTEGER", "STRING", "INTEGER"};
 
     private static database_helper instance = null;
+    private database_helper context = this;
 
     // Build a table creation query string
     public String createCreateString(){
@@ -51,9 +52,10 @@ public class database_helper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        try{
+
+        try {
             db.execSQL(createCreateString());
-        }catch(Error e) {
+        } catch (Error e) {
             Log.e(TAG, "Error creating table" + e);
         }
     }
@@ -106,16 +108,12 @@ public class database_helper extends SQLiteOpenHelper {
     }
 
     public String getScores(){
-        // TODO make this a on debug
+        // TODO make this an on debug
         addExampleData();
 
         // check the number of rows
         SQLiteDatabase db = this.getReadableDatabase();
         String output = "";
-
-        //Cursor result = db.rawQuery("SELECT Nickname, Score FROM HighScores", null);
-        //Log.d(TAG, "Querying for Nickname and score");
-
 
         // if there is text to load, return it, otherwise return error message
         try {
@@ -142,10 +140,24 @@ public class database_helper extends SQLiteOpenHelper {
 
             result.close();
 
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             Log.d(TAG, "This failed, no results?" + e);
             output = ("No results, stop looking at the scoreboard and play the bloody game");
         }
         return output;
     }
+
+
+
+    public void clearDB()
+    {
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor dropTable = db.rawQuery("DROP TABLE HighScores;", null);
+        dropTable.close();
+
+        Log.d(TAG, "Table deleted");
+    }
+
+
 }

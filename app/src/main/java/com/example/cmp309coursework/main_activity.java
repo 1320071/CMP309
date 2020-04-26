@@ -18,10 +18,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.cmp309coursework.database_helper;
-
-import java.util.List;
-import java.util.Map;
 
 public class main_activity extends AppCompatActivity implements View.OnClickListener
 {

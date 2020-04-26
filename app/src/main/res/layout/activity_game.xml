@@ -42,4 +42,44 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
+
+    <ImageView
+        android:id="@+id/boat"
+        android:layout_width="125dp"
+        android:layout_height="80dp"
+        app:srcCompat="@drawable/crappyboat"
+        tools:layout_editor_absoluteX="213dp"
+        tools:layout_editor_absoluteY="273dp" />
+
+    <ImageView
+        android:id="@+id/itemOne"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@android:drawable/btn_star_big_on"
+        tools:layout_editor_absoluteX="77dp"
+        tools:layout_editor_absoluteY="60dp" />
+
+    <ImageView
+        android:id="@+id/itemTwo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@android:drawable/btn_star_big_on"
+        tools:layout_editor_absoluteX="175dp"
+        tools:layout_editor_absoluteY="168dp" />
+
+    <ImageView
+        android:id="@+id/itemThree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@android:drawable/btn_star_big_on"
+        tools:layout_editor_absoluteX="62dp"
+        tools:layout_editor_absoluteY="301dp" />
+
+    <ImageView
+        android:id="@+id/itemFour"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@android:drawable/btn_star_big_on"
+        tools:layout_editor_absoluteX="420dp"
+        tools:layout_editor_absoluteY="301dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
