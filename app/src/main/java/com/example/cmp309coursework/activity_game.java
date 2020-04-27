@@ -5,53 +5,67 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Point;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.Shape;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorEventListener2;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.Menu;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.CountDownTimer;
+import android.widget.ImageView;
+import android.graphics.Canvas;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.pm.ActivityInfo;
 
 
-public class activity_game extends AppCompatActivity implements SensorEventListener2
+public class activity_game extends AppCompatActivity implements SensorEventListener
 {
     final String TAG = "GAME";
-    private float xPos, xAccel, xVel = 0.0f;
-    private float yPos, yAccel, yVel = 0.0f;
-    private float xMax, yMax;
-    private Bitmap ship;
-    private SensorManager sensorManager;
 
     String prefix = "";
     String country = "";
+    private long lastUpdate;
+    private SensorManager sensorManager;
+    private Sensor sensor;
 
+    AnimatedView mAnimatedView = null;
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        BallView ballView = new BallView(this);
-        setContentView(ballView);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        Point size = new Point();
-        Display display = getWindowManager().getDefaultDisplay();
-        display.getSize(size);
-        xMax = (float) size.x - 100;
-        yMax = (float) size.y - 100;
+        mAnimatedView = new AnimatedView(this);
+        //Set our content to a view, not like the traditional setting to a layout
+        setContentView(mAnimatedView);
 
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        //sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        //sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        //ImageView ship = findViewById(R.id.boat);
+        //lastUpdate = System.currentTimeMillis();
+
+        //animatedView = new AnimatedView(this);
+
+
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Log.d(TAG, "Created screen");
 
@@ -69,93 +83,9 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
             finish();
         }
 
-        gameTimer(sensorManager);
+        //gameTimer(sensorManager);
 
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        sensorManager.registerListener((SensorEventListener) this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
-        Log.d(TAG, "on start");
-    }
-
-    @Override
-    protected void onStop() {
-        sensorManager.unregisterListener((SensorEventListener) this);
-        super.onStop();
-        Log.d(TAG, "on stop");
-    }
-
-    @Override
-    public void onFlushCompleted(Sensor sensor) {
-
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            xAccel = sensorEvent.values[0];
-            yAccel = -sensorEvent.values[1];
-            updateBall();
-        }
-    }
-        private void updateBall() {
-        float frameTime = 0.666f;
-        xVel += (xAccel * frameTime);
-        yVel += (yAccel * frameTime);
-
-        float xS = (xVel / 2) * frameTime;
-        float yS = (yVel / 2) * frameTime;
-
-        xPos -= xS;
-        yPos -= yS;
-
-        if (xPos > xMax) {
-            xPos = xMax;
-        } else if (xPos < 0) {
-            xPos = 0;
-        }
-
-        if (yPos > yMax) {
-            yPos = yMax;
-        } else if (yPos < 0) {
-            yPos = 0;
-        }
-        Log.d(TAG,"Set coordinate info");
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
-    }
-
-    private class BallView extends View {
-
-        public BallView(Context context) {
-            super(context);
-            Log.d(TAG, "Creating ship");
-            //Bitmap ballSrc = BitmapFactory.decodeResource(getResources(), R.drawable.crappyboat);
-            final int dstWidth = 100;
-            final int dstHeight = 100;
-            //ship = Bitmap.createScaledBitmap(ballSrc, dstWidth, dstHeight, true);
-            Log.d(TAG, "Made ship");
-        }
-
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            canvas.drawBitmap(ship, xPos, yPos, null);
-            invalidate();
-        }
-    }
-
-
-    public void moveShip(View v)
-    {
-
-    }
-
 
     public void gameTimer(final SensorManager sensorManager)
     {
@@ -179,6 +109,7 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
         };
     }
 
+
     public void endScreen()
     {
         if(prefix == null)
@@ -194,4 +125,87 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
             }
         });
     }
+
+    public void moveShip()
+    {
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            mAnimatedView.onSensorEvent(event);
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    public class AnimatedView extends View {
+
+        private static final int CIRCLE_RADIUS = 25; //pixels
+
+        private Paint mPaint;
+        private int x;
+        private int y;
+        private int viewWidth;
+        private int viewHeight;
+
+        public AnimatedView(Context context) {
+            super(context);
+            mPaint = new Paint();
+            mPaint.setColor(Color.MAGENTA);
+        }
+
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            viewWidth = w;
+            viewHeight = h;
+        }
+
+        public void onSensorEvent (SensorEvent event) {
+            x = x - (int) event.values[0];
+            y = y + (int) event.values[1];
+            //Make sure we do not draw outside the bounds of the view.
+            //So the max values we can draw to are the bounds + the size of the circle
+            if (x <= 0 + CIRCLE_RADIUS) {
+                x = 0 + CIRCLE_RADIUS;
+            }
+            if (x >= viewWidth - CIRCLE_RADIUS) {
+                x = viewWidth - CIRCLE_RADIUS;
+            }
+            if (y <= 0 + CIRCLE_RADIUS) {
+                y = 0 + CIRCLE_RADIUS;
+            }
+            if (y >= viewHeight - CIRCLE_RADIUS) {
+                y = viewHeight - CIRCLE_RADIUS;
+            }
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            canvas.drawCircle(x, y, CIRCLE_RADIUS, mPaint);
+            //We need to call invalidate each time, so that the view continuously draws
+            invalidate();
+
+    }
+
+
+
 }
