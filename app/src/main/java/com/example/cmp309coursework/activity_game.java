@@ -28,18 +28,24 @@ import android.os.CountDownTimer;
 import android.widget.ImageView;
 import android.graphics.Canvas;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 import android.content.pm.ActivityInfo;
+
+import java.util.Locale;
 
 
 public class activity_game extends AppCompatActivity implements SensorEventListener
 {
+    private Boolean timerDone;
+    private long timeLeft = 1200000;
     final String TAG = "GAME";
-
     String prefix = "";
     String country = "";
     private long lastUpdate;
     private SensorManager sensorManager;
     private Sensor sensor;
+    private TextView timerTxt;
 
     AnimatedView mAnimatedView = null;
     @SuppressLint("SourceLockedOrientationActivity")
@@ -48,22 +54,15 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         mAnimatedView = new AnimatedView(this);
-        //Set our content to a view, not like the traditional setting to a layout
         setContentView(mAnimatedView);
-
-        //sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        //sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        //ImageView ship = findViewById(R.id.boat);
-        //lastUpdate = System.currentTimeMillis();
-
-        //animatedView = new AnimatedView(this);
-
-
+        timerTxt = findViewById(R.id.timerText);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
@@ -83,32 +82,42 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
             finish();
         }
 
-        //gameTimer(sensorManager);
-
+        gameTimer();
     }
-
-    public void gameTimer(final SensorManager sensorManager)
+    public void gameTimer()
     {
-        final TextView timer = findViewById(R.id.timerText);
-
-        new CountDownTimer(120000,1000) {
-            int counter = 120;
-
+        CountDownTimer countDown = new CountDownTimer(timeLeft, 1000) {
             @Override
-            public void onTick(long millisUntilFinished) {
-                Log.d(TAG, "Create timer");
-                timer.setText(String.valueOf(counter));
-                counter--;
+            public void onTick(long millisUntilFinished)
+            {
+                timeLeft = millisUntilFinished;
+                updateTimer();
             }
+
             @Override
-            public void onFinish() {
-                timer.setText("Times up!");
+            public void onFinish()
+            {
+                timerDone = true;
                 Log.d(TAG, "Timers done");
                 endScreen();
             }
-        };
+        }.start();
+
+        timerDone = false;
     }
 
+    private void updateTimer()
+    {
+        int min = (int) (timeLeft / 1000) / 60;
+        int sec = (int) (timeLeft/ 1000) % 60;
+
+        String formattedTimer = String.format(Locale.getDefault(), "%02d:%02d", min, sec);
+        if(!timerDone)
+        {
+            timerTxt.setText(formattedTimer);
+        }
+
+    }
 
     public void endScreen()
     {
@@ -122,14 +131,9 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 startActivity(new Intent(activity_game.this, main_activity.class));
+                Log.d(TAG,"End Screen");
             }
         });
-    }
-
-    public void moveShip()
-    {
-
-
     }
 
     @Override
@@ -158,9 +162,9 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
 
     public class AnimatedView extends View {
 
-        private static final int CIRCLE_RADIUS = 25; //pixels
+        private static final int CIRCLE_RADIUS = 35; //pixels
 
-        private Paint mPaint;
+        private Paint grey;
         private int x;
         private int y;
         private int viewWidth;
@@ -168,8 +172,8 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
 
         public AnimatedView(Context context) {
             super(context);
-            mPaint = new Paint();
-            mPaint.setColor(Color.MAGENTA);
+            grey = new Paint();
+            grey.setColor(Color.GRAY);
         }
 
         @Override
@@ -179,7 +183,7 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
             viewHeight = h;
         }
 
-        public void onSensorEvent (SensorEvent event) {
+        public void onSensorEvent(SensorEvent event) {
             x = x - (int) event.values[0];
             y = y + (int) event.values[1];
             //Make sure we do not draw outside the bounds of the view.
@@ -200,12 +204,12 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
 
         @Override
         protected void onDraw(Canvas canvas) {
-            canvas.drawCircle(x, y, CIRCLE_RADIUS, mPaint);
+            canvas.drawCircle(x, y, CIRCLE_RADIUS, grey);
             //We need to call invalidate each time, so that the view continuously draws
             invalidate();
 
+        }
+
     }
-
-
 
 }
