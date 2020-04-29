@@ -28,43 +28,58 @@ import android.os.CountDownTimer;
 import android.widget.ImageView;
 import android.graphics.Canvas;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import android.content.pm.ActivityInfo;
 
 import java.util.Locale;
+import java.util.Random;
 
 
 public class activity_game extends AppCompatActivity implements SensorEventListener
 {
     private Boolean timerDone;
-    private long timeLeft = 1200000;
+    private long timeLeft = 3000; // 120000 = 2 mins (actual gameplay) | 10000 = 10 seconds (for showing off) | 3000 = 3 seconds (for debugging)
     final String TAG = "GAME";
-    String prefix = "";
+    String prefix;
     String country = "";
     private long lastUpdate;
     private SensorManager sensorManager;
     private Sensor sensor;
     private TextView timerTxt;
+    private int finalScore;
+    private int itemX = 0;
+    private int itemY = 0;
+    private String nickname = "";
 
+    //private View layout = findViewById(R.id.gameScreen);
     AnimatedView mAnimatedView = null;
+
+    public activity_game() {
+    }
+
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
+        setContentView(R.layout.activity_game);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        ConstraintLayout layout = findViewById(R.id.gameScreen);
+        layout.setBackgroundColor(Color.parseColor("#3498DB"));
         mAnimatedView = new AnimatedView(this);
-        setContentView(mAnimatedView);
-        timerTxt = findViewById(R.id.timerText);
+        layout.addView(mAnimatedView);
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        timerTxt = findViewById(R.id.timerText);
 
         Log.d(TAG, "Created screen");
 
@@ -84,6 +99,8 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
 
         gameTimer();
     }
+
+    // >>>>>>>>>> Timer <<<<<<<<<< //
     public void gameTimer()
     {
         CountDownTimer countDown = new CountDownTimer(timeLeft, 1000) {
@@ -112,30 +129,57 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
         int sec = (int) (timeLeft/ 1000) % 60;
 
         String formattedTimer = String.format(Locale.getDefault(), "%02d:%02d", min, sec);
-        if(!timerDone)
-        {
-            timerTxt.setText(formattedTimer);
-        }
+
+        timerTxt.setText(formattedTimer);
 
     }
 
+    // >>>>>>>>>> End screen <<<<<<<<< //
     public void endScreen()
     {
+        Log.d(TAG, "Game over");
+        database_helper databaseObj = new database_helper(this);
         if(prefix == null)
         {
             prefix = "SS";
         }
+        if(nickname == "")
+        {
+            nickname = "No name";
+        }
 
-        AlertDialog.Builder endGame = new AlertDialog.Builder(getApplicationContext());
-        endGame.setMessage(R.string.end_screen).setPositiveButton("Back", new DialogInterface.OnClickListener() {
+        databaseObj.addHighScores(prefix, nickname, finalScore);
+
+        AlertDialog dialog = new AlertDialog.Builder(this, R.style.AppTheme).create();
+        Log.d(TAG, "End Screen");
+        dialog.setTitle("GAME OVER");
+        dialog.setMessage("Good job! Your final score was:" + finalScore);
+        dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Back to menu", new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
                 startActivity(new Intent(activity_game.this, main_activity.class));
-                Log.d(TAG,"End Screen");
+                finish();
             }
         });
+        dialog.show();
     }
 
+    // >>>>>>>>>> Items <<<<<<<<<< //
+
+    public void moveItems(Canvas canvas, int x)
+    {
+        itemY =  300;
+        int radius = 10;
+        Paint yellow = new Paint();
+        yellow.setColor(Color.YELLOW);
+        Random random = new Random();
+
+        canvas.drawCircle(itemY, x, radius, yellow);
+    }
+
+
+    // >>>>>>>>>> Move ship <<<<<<<<<< //
     @Override
     protected void onResume() {
         super.onResume();
@@ -162,11 +206,11 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
 
     public class AnimatedView extends View {
 
-        private static final int CIRCLE_RADIUS = 35; //pixels
+        private static final int RADIUS = 40; //pixels
 
         private Paint grey;
-        private int x;
-        private int y;
+        private int boatX;
+        private int boatY;
         private int viewWidth;
         private int viewHeight;
 
@@ -179,33 +223,37 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
-            viewWidth = w;
-            viewHeight = h;
+            viewWidth = h;
+            viewHeight = w;
         }
 
+        // Ensures ship doesn't go off screen
         public void onSensorEvent(SensorEvent event) {
-            x = x - (int) event.values[0];
-            y = y + (int) event.values[1];
-            //Make sure we do not draw outside the bounds of the view.
-            //So the max values we can draw to are the bounds + the size of the circle
-            if (x <= 0 + CIRCLE_RADIUS) {
-                x = 0 + CIRCLE_RADIUS;
+            boatX = boatX - (int) event.values[0];
+            boatY = boatY + (int) event.values[1];
+
+            if (boatX <= RADIUS) {
+                boatX = RADIUS;
             }
-            if (x >= viewWidth - CIRCLE_RADIUS) {
-                x = viewWidth - CIRCLE_RADIUS;
+            if (boatX >= viewWidth - RADIUS) {
+                boatX = viewWidth - RADIUS;
             }
-            if (y <= 0 + CIRCLE_RADIUS) {
-                y = 0 + CIRCLE_RADIUS;
+            if (boatY <= RADIUS) {
+                boatY = RADIUS;
             }
-            if (y >= viewHeight - CIRCLE_RADIUS) {
-                y = viewHeight - CIRCLE_RADIUS;
+            if (boatY >= viewHeight - RADIUS) {
+                boatY = viewHeight - RADIUS;
             }
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
-            canvas.drawCircle(x, y, CIRCLE_RADIUS, grey);
-            //We need to call invalidate each time, so that the view continuously draws
+            // random.nextInt(300);
+            canvas.drawCircle(boatY, boatX, RADIUS, grey);//for rectangle: left, top, right, bottom, colour
+
+            moveItems(canvas, 100);
+
+            // need to call invalidate each time, so that the view continuously draws
             invalidate();
 
         }

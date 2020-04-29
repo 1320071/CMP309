@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Location;
 import android.location.LocationListener;
@@ -32,12 +33,13 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState)
     {
         Log.d("Main Activity", "Start");
-        // Draw the screen
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         database_helper database = new database_helper(this);
+        database.addExampleData();
 
         Log.d(TAG, "Created db in main:"+ database.createCreateString());
 
