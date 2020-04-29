@@ -9,21 +9,24 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class database_helper extends SQLiteOpenHelper {
     private static final String TAG = "DB";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "HolyShip";
     private static final String TABLE_NAME = "HighScores";
     private static final String[] COLUMN_NAMES = {"ID", "Nickname", "Score"};
     private static final String[] COLUMN_TYPE = {"INTEGER", "STRING", "INTEGER"};
+    private SQLiteDatabase db = this.getReadableDatabase();
 
     private static database_helper instance = null;
     private database_helper context = this;
 
     // Build a table creation query string
     public String createCreateString(){
-        StringBuilder s = new StringBuilder("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (");
+
+        StringBuilder s = new StringBuilder("CREATE TABLE IF NOT EXISTS HighScores (");
         for (int i = 0; i < database_helper.COLUMN_NAMES.length; i++) {
             s.append(database_helper.COLUMN_NAMES[i])
                     .append(" ")
@@ -42,13 +45,6 @@ public class database_helper extends SQLiteOpenHelper {
     public database_helper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
-
-//    public static database_helper getInstance(Context context){
-//        if(instance == null){
-//            instance = new database_helper(context);
-//        }
-//        return instance;
-//    }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -69,17 +65,10 @@ public class database_helper extends SQLiteOpenHelper {
         // Check the number of rows
         SQLiteDatabase db = getWritableDatabase();
         String[] nickname = {"Nickname"};
-        Cursor getAll = db.rawQuery("SELECT * FROM HighScores", null);
-        int count = 0;
 
-        if (getAll.moveToFirst())
-        {
-            count = getAll.getInt(0);
-            getAll.close();
-        }
+        boolean empty = checkEmpty();
 
-
-        if (count == 0) {
+        if (empty == true) {
             Log.d(TAG, "Adding example data");
 
             String[] exampleNames = {"HMS Boaty McBoatface", "USS Enterprise", "USS Voyager", "HMS Interceptor", "HMS Lydia"};
@@ -107,9 +96,46 @@ public class database_helper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public boolean checkEmpty()
+    {
+        boolean empty = true;
+        Cursor mcursor = db.rawQuery("SELECT COUNT(*) FROM HighScores", null);
+        mcursor.moveToFirst();
+        int icount = mcursor.getInt(0);
+
+        if(icount>0)
+        {
+            empty = false;
+        }
+
+        return empty;
+
+    }
+
+    public void addHighScores(String prefix, String nickname, int score)
+    {
+        Log.d(TAG, "Adding scores");
+        ContentValues row = new ContentValues();
+        // Prepare a row for saving
+        Random random = new Random();
+        int id = random.nextInt(1000);
+
+        row.put(COLUMN_NAMES[0], (id));
+        row.put(COLUMN_NAMES[1], (prefix + "" + nickname));
+        row.put(COLUMN_NAMES[2], score);
+
+        // Returns long, the row ID of the newly inserted row or, -1 if an error occurred
+        if (db.insertOrThrow(TABLE_NAME, null, row) == -1)
+            {
+                Log.e(TAG, "Insert Method threw an error");
+            }
+        else
+            {
+                Log.d(TAG,"High score data added");
+            }
+    }
+
     public String getScores(){
-        // TODO make this an on debug
-        addExampleData();
 
         // check the number of rows
         SQLiteDatabase db = this.getReadableDatabase();
@@ -148,13 +174,10 @@ public class database_helper extends SQLiteOpenHelper {
         return output;
     }
 
-
-
     public void clearDB()
     {
-        SQLiteDatabase db = getWritableDatabase();
-        Cursor dropTable = db.rawQuery("DROP TABLE HighScores;", null);
-        dropTable.close();
+       db.execSQL("DELETE FROM "+ TABLE_NAME +";");
+       db.execSQL("vacuum;");
 
         Log.d(TAG, "Table deleted");
     }
