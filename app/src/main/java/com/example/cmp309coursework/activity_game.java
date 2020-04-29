@@ -17,10 +17,12 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -88,7 +90,8 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
         {
             country = intent.getStringExtra("country");
             prefix = intent.getStringExtra("prefix");
-            Log.d(TAG, "Got intent:" + prefix + country);
+            nickname = intent.getStringExtra("shipName");
+            Log.d(TAG, "Got intent:" + prefix + country + nickname);
         }
         else {
             Toast error = Toast.makeText(this, "An error has occured", Toast.LENGTH_SHORT);
@@ -139,14 +142,6 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
     {
         Log.d(TAG, "Game over");
         database_helper databaseObj = new database_helper(this);
-        if(prefix == null)
-        {
-            prefix = "SS";
-        }
-        if(nickname == "")
-        {
-            nickname = "No name";
-        }
 
         databaseObj.addHighScores(prefix, nickname, finalScore);
 
@@ -257,7 +252,5 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
             invalidate();
 
         }
-
     }
-
 }

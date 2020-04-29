@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -37,6 +38,7 @@ public class activity_settings extends AppCompatActivity implements View.OnClick
             case R.id.clearScoresBttn:
                 database_helper databaseObj = new database_helper(this);
                 databaseObj.clearDB();
+                Toast.makeText(getApplicationContext(),"Scores Cleared", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "Cleared scores button pressed");
                 break;
             default:

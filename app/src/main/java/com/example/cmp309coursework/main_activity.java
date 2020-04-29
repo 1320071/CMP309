@@ -81,11 +81,11 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
         switch (v.getId())
         {
             case R.id.playBttn:
-                intent = new Intent (main_activity.this, activity_game.class);
+                intent = new Intent (main_activity.this, activity_instructions.class);
                 intent.putExtra("country", country);
                 intent.putExtra("prefix", countryPrefix);
                 startActivity(intent);
-                Log.d(TAG, "Sent intent to game");
+                Log.d(TAG, "Sent intent to game instructions");
                 break;
             case R.id.settingsBttn:
                 startActivity(new Intent(main_activity.this, activity_settings.class));

@@ -121,7 +121,7 @@ public class database_helper extends SQLiteOpenHelper {
         int id = random.nextInt(1000);
 
         row.put(COLUMN_NAMES[0], (id));
-        row.put(COLUMN_NAMES[1], (prefix + "" + nickname));
+        row.put(COLUMN_NAMES[1], (prefix + " " + nickname));
         row.put(COLUMN_NAMES[2], score);
 
         // Returns long, the row ID of the newly inserted row or, -1 if an error occurred

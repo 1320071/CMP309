@@ -35,6 +35,7 @@
         </activity>
         <activity android:name=".activity_settings" />
         <activity android:name=".activity_scores" />
+        <activity android:name=".activity_instructions" />
     </application>
 
 </manifest>

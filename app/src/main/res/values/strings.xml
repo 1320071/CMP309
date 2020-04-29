@@ -6,4 +6,6 @@
     <string name="end_screen">Well done! Your final score is:</string>
     <string name="high_scores">High scores!!</string>
     <string name="end_screen_button">Back to menu</string>
+    <string name="instructions">Tilt your phone in order to move the ship around the screen\nTry and catch as many gold coins as possible before the time runs out!</string>
+    <string name="enter_name">Before you start please enter the name of your fine vessel</string>
 </resources>
