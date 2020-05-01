@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class activity_scores extends AppCompatActivity implements View.OnClickListener
+public class activity_scores extends AppCompatActivity
 {
     final String TAG = "SCORES";
 
@@ -30,11 +30,5 @@ public class activity_scores extends AppCompatActivity implements View.OnClickLi
         Log.d(TAG, "Updating scrollTXT");
 
         highScores.setText(scores);
-    }
-
-    @Override
-    public void onClick(View v)
-    {
-
     }
 }

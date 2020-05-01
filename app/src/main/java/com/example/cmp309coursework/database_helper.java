@@ -169,7 +169,7 @@ public class database_helper extends SQLiteOpenHelper {
         } catch (Exception e)
         {
             Log.d(TAG, "This failed, no results?" + e);
-            output = ("No results, stop looking at the scoreboard and play the bloody game");
+            output = ("No results, stop looking at the scoreboard and play the game!");
         }
         return output;
     }

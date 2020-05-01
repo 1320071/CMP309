@@ -34,14 +34,13 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
     {
         Log.d("Main Activity", "Start");
 
+        new setUp();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        database_helper database = new database_helper(this);
-        database.addExampleData();
 
-        Log.d(TAG, "Created db in main:"+ database.createCreateString());
 
         // Set button listeners
         final Button play = findViewById(R.id.playBttn);
@@ -65,7 +64,7 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
                 public void onClick(DialogInterface dialogInterface, int i)
                 {
                     Log.d(TAG, "Asking for permissions");
-                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET}, R.string.app_name); // TODO: confirm these are all the perms I need
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET, Manifest.permission.SEND_SMS}, R.string.app_name);
                 }
             });
 
@@ -105,34 +104,30 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
         @Override
         public void onLocationChanged(final Location location)
         {
-            new Thread(new Runnable(){
-                public void run(){
-                    try
-                    {
-                        Log.d(TAG, "Set up location listener");
-                        latitude = location.getLatitude();
-                        longitude = location.getLongitude();
-                        Log.d(TAG, "Got lat and long");
+            try
+            {
+                Log.d(TAG, "Set up location listener");
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+                Log.d(TAG, "Got lat and long");
 
-                        if (((latitude >= 25.0) && (latitude <= 48.0)) && ((longitude <= -78.0) && (longitude >= -125.0))) {
-                            country = "USA";
-                            countryPrefix = "USS";
-                        } else if (((latitude <= 58.0) && (latitude >= 52.0)) && ((longitude <= -5.0) && (longitude >= -3.0))) {
-                            country = "UK";
-                            countryPrefix = "HMS";
-                        } else if (((latitude <= -46.0) && (latitude >= -37.0)) && ((longitude >= 137.0) && (longitude <= 169.0))) {
-                            country = "New Zealand";
-                            countryPrefix = "HMNZS";
-                        }
-                        Log.d(TAG, "Got country prefix");
-                    }
-                    catch(Error e)
-                    {
-                        Log.e(TAG, "error getting location: " + e);
-                    }
+                if (((latitude >= 25.0) && (latitude <= 48.0)) && ((longitude <= -78.0) && (longitude >= -125.0))) {
+                    country = "USA";
+                    countryPrefix = "USS";
+                } else if (((latitude <= 58.0) && (latitude >= 52.0)) && ((longitude <= -5.0) && (longitude >= -3.0))) {
+                    country = "UK";
+                    countryPrefix = "HMS";
+                } else if (((latitude <= -46.0) && (latitude >= -37.0)) && ((longitude >= 137.0) && (longitude <= 169.0))) {
+                    country = "New Zealand";
+                    countryPrefix = "HMNZS";
                 }
-            });
-        }
+                Log.d(TAG, "Got country prefix");
+            }
+            catch(Error e)
+            {
+                Log.e(TAG, "error getting location: " + e);
+            }
+        };
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras)
@@ -154,5 +149,16 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
             countryPrefix = "HMS";
         }
     };
+
+    private class setUp implements Runnable
+    {
+        @Override
+        public void run() {
+            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+            database_helper database = new database_helper(main_activity.this);
+            database.addExampleData();
+            Log.d(TAG, "Created db in main:"+ database.createCreateString());
+        }
+    }
 
 }

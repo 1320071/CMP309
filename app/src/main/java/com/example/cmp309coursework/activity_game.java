@@ -1,10 +1,13 @@
 package com.example.cmp309coursework;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
@@ -15,6 +18,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.telephony.SmsManager;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -54,19 +59,18 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
     private int itemX = 0;
     private int itemY = 0;
     private String nickname = "";
+    private int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+    private int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
+    private TextView scoreTxt;
 
     //private View layout = findViewById(R.id.gameScreen);
     AnimatedView mAnimatedView = null;
-
-    public activity_game() {
-    }
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -82,6 +86,7 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
 
 
         timerTxt = findViewById(R.id.timerText);
+        scoreTxt = findViewById(R.id.scoreText);
 
         Log.d(TAG, "Created screen");
 
@@ -147,8 +152,20 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
 
         AlertDialog dialog = new AlertDialog.Builder(this, R.style.AppTheme).create();
         Log.d(TAG, "End Screen");
+        final EditText phoneNumber = new EditText(this);
+
         dialog.setTitle("GAME OVER");
-        dialog.setMessage("Good job! Your final score was:" + finalScore);
+        dialog.setMessage("Good job! Your final score was: " + finalScore);
+        phoneNumber.setInputType(InputType.TYPE_CLASS_PHONE);
+        dialog.setView(phoneNumber);
+        dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Text your friends!", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String number = phoneNumber.getText().toString();
+                text(number);
+            }
+        });
+
         dialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Back to menu", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i)
@@ -156,21 +173,22 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
                 startActivity(new Intent(activity_game.this, main_activity.class));
                 finish();
             }
+
+
         });
         dialog.show();
     }
 
-    // >>>>>>>>>> Items <<<<<<<<<< //
-
-    public void moveItems(Canvas canvas, int x)
+    // >>>>>>>>>> SMS <<<<<<<<<<< //
+    public void text(String number)
     {
-        itemY =  300;
-        int radius = 10;
-        Paint yellow = new Paint();
-        yellow.setColor(Color.YELLOW);
-        Random random = new Random();
-
-        canvas.drawCircle(itemY, x, radius, yellow);
+        SmsManager sendText = SmsManager.getDefault();
+        String message = "Hey I just got a score of " + finalScore + " on Holy Ship, can you beat my score?";
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED)
+        {
+            sendText.sendTextMessage(number, null, message, null, null);
+        }
+        Log.d(TAG, "sent text");
     }
 
 
@@ -241,16 +259,44 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
             }
         }
 
+        // >>>>>>>>>> Items <<<<<<<<<< //
+
+        public void createItem(Canvas canvas)
+        {
+            int radius = 10;
+            Paint yellow = new Paint();
+            yellow.setColor(Color.YELLOW);
+            Random random = new Random();
+
+            itemY =  random.nextInt(screenHeight);
+            itemX = random.nextInt(screenWidth);
+
+            canvas.drawCircle(itemY, itemX, radius, yellow);
+        }
+
         @Override
         protected void onDraw(Canvas canvas) {
-            // random.nextInt(300);
             canvas.drawCircle(boatY, boatX, RADIUS, grey);//for rectangle: left, top, right, bottom, colour
 
-            moveItems(canvas, 100);
+            createItem(canvas);
+            createItem(canvas);
+            createItem(canvas);
 
-            // need to call invalidate each time, so that the view continuously draws
             invalidate();
 
+
+            // need to call invalidate each time, so that the view continuously draws
+
         }
+        public void increaseScore()
+        {
+            if (boatX == itemX && boatY == itemY)
+            {
+                finalScore += 5;
+                String score = Integer.toString(finalScore);
+                scoreTxt.setText(score);
+            }
+        }
+
     }
 }
