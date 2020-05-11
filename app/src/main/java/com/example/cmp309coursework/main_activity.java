@@ -8,20 +8,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.location.Address;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-
 public class main_activity extends AppCompatActivity implements View.OnClickListener
 {
+    // This is both the 'main menu' and setup for the app
     final String TAG = "MAIN";
 
     public double latitude;
@@ -40,7 +37,6 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_main);
 
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
 
         // Set button listeners
         final Button play = findViewById(R.id.playBttn);
@@ -76,6 +72,7 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View v)
     {
+        // Starts different pages depending on where the user wants to go
         Intent intent;
         switch (v.getId())
         {
@@ -104,6 +101,7 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
         @Override
         public void onLocationChanged(final Location location)
         {
+            // Gets the users location in order to determine what country their ship is from and therefore its prefix
             try
             {
                 Log.d(TAG, "Set up location listener");
@@ -144,6 +142,7 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
         @Override
         public void onProviderDisabled(String provider)
         {
+            // If location is turned off then just use default prefix
             Log.d(TAG,"Set default prefix");
             country = "United Kingdom";
             countryPrefix = "HMS";
@@ -152,6 +151,7 @@ public class main_activity extends AppCompatActivity implements View.OnClickList
 
     private class setUp implements Runnable
     {
+        // Runs db creation in background on seperate thread
         @Override
         public void run() {
             android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);

@@ -1,11 +1,9 @@
 package com.example.cmp309coursework;
 
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -21,6 +19,7 @@ public class activity_instructions extends AppCompatActivity implements View.OnC
     public String country;
     public String prefix;
 
+    // Forces landscape orientation
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +27,7 @@ public class activity_instructions extends AppCompatActivity implements View.OnC
         setContentView(R.layout.activity_instructions);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
+        // Sets buttons and text views
         final Button play = findViewById(R.id.instructionsBttn);
         final TextView prefixText = findViewById(R.id.prefixTxt);
         final EditText shipName = findViewById(R.id.editText);
@@ -36,6 +36,7 @@ public class activity_instructions extends AppCompatActivity implements View.OnC
         play.setOnClickListener(this);
         back.setOnClickListener(this);
 
+        // Gets information from main_activity to send to activity_game
         Intent intent = getIntent();
         if (intent.getExtras() != null)
         {
@@ -50,9 +51,10 @@ public class activity_instructions extends AppCompatActivity implements View.OnC
             finish();
         }
 
+        // Sets a default prefix if one not given
         if(prefix == null)
         {
-            prefix = "SS";
+            prefix = "HMS";
         }
 
         prefixText.setText(prefix);
@@ -65,9 +67,10 @@ public class activity_instructions extends AppCompatActivity implements View.OnC
         final EditText shipName = findViewById(R.id.editText);
         String ship = shipName.getText().toString();
 
+        // Player must enter a ship name to play
         switch (v.getId()) {
             case R.id.instructionsBttn:
-                if (ship == null) {
+                if (ship == "") {
                     Toast.makeText(getApplicationContext(), "Please enter ship name", Toast.LENGTH_SHORT).show();
                 } else {
                     intent = new Intent(this, activity_game.class);

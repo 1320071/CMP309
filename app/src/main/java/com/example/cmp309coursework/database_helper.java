@@ -6,9 +6,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class database_helper extends SQLiteOpenHelper {
@@ -23,7 +20,7 @@ public class database_helper extends SQLiteOpenHelper {
     private static database_helper instance = null;
     private database_helper context = this;
 
-    // Build a table creation query string
+    // Create HighScores table if its not already there
     public String createCreateString(){
 
         StringBuilder s = new StringBuilder("CREATE TABLE IF NOT EXISTS HighScores (");
@@ -62,17 +59,17 @@ public class database_helper extends SQLiteOpenHelper {
     }
 
     public void addExampleData() {
-        // Check the number of rows
+        // Adds example data to populate the database if it's empty
         SQLiteDatabase db = getWritableDatabase();
         String[] nickname = {"Nickname"};
 
         boolean empty = checkEmpty();
 
-        if (empty == true) {
+        if (empty) {
             Log.d(TAG, "Adding example data");
 
             String[] exampleNames = {"HMS Boaty McBoatface", "USS Enterprise", "USS Voyager", "HMS Interceptor", "HMS Lydia"};
-            int[] exampleScores = {200, 50, 214, 3, 158};
+            int[] exampleScores = {105, 50, 115, 70, 15};
 
             ContentValues row = new ContentValues();
             // Prepare a row for saving
@@ -98,22 +95,25 @@ public class database_helper extends SQLiteOpenHelper {
 
     public boolean checkEmpty()
     {
+        // Checks if the database has any contents
         boolean empty = true;
-        Cursor mcursor = db.rawQuery("SELECT COUNT(*) FROM HighScores", null);
+        Cursor mcursor = db.rawQuery("SELECT ID, Nickname, Score FROM HighScores", null);
         mcursor.moveToFirst();
-        int icount = mcursor.getInt(0);
+        int icount = mcursor.getCount();
 
-        if(icount>0)
+        if(icount != 0)
         {
             empty = false;
         }
-
+        Log.d(TAG, "DB empty?: " + empty);
         return empty;
+
 
     }
 
     public void addHighScores(String prefix, String nickname, int score)
     {
+        // Adds new score after game has finished
         Log.d(TAG, "Adding scores");
         ContentValues row = new ContentValues();
         // Prepare a row for saving
@@ -137,11 +137,10 @@ public class database_helper extends SQLiteOpenHelper {
 
     public String getScores(){
 
-        // check the number of rows
+        // Sends the top 25 scores to activity_scores
         SQLiteDatabase db = this.getReadableDatabase();
         String output = "";
 
-        // if there is text to load, return it, otherwise return error message
         try {
             Cursor result = db.rawQuery("SELECT Nickname, Score FROM HighScores ORDER BY Score DESC LIMIT 25;", null);
             Log.d(TAG, "Querying for Nickname and score");
@@ -169,18 +168,19 @@ public class database_helper extends SQLiteOpenHelper {
         } catch (Exception e)
         {
             Log.d(TAG, "This failed, no results?" + e);
-            output = ("No results, stop looking at the scoreboard and play the game!");
+            output = ("      No results, stop looking at the scoreboard and play the game!");
+            addExampleData();
         }
         return output;
     }
 
     public void clearDB()
     {
+        // Empties HighScores table
        db.execSQL("DELETE FROM "+ TABLE_NAME +";");
        db.execSQL("vacuum;");
 
         Log.d(TAG, "Table deleted");
     }
-
 
 }

@@ -1,7 +1,6 @@
 package com.example.cmp309coursework;
 
 import android.Manifest;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -30,10 +29,12 @@ public class activity_settings extends AppCompatActivity implements View.OnClick
     @Override
     public void onClick(View v)
     {
+        // Lets user change their permissions or delete scores from the database
         switch (v.getId())
         {
             case R.id.permsBttn:
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET}, R.string.app_name);
+                Toast.makeText(getApplicationContext(), "Permissions Changed", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.clearScoresBttn:
                 database_helper databaseObj = new database_helper(this);

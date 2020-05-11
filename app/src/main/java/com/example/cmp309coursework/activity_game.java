@@ -10,9 +10,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.Shape;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -21,18 +18,13 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.InputType;
 import android.util.Log;
-import android.view.Display;
-import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.CountDownTimer;
-import android.widget.ImageView;
 import android.graphics.Canvas;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -63,9 +55,9 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
     private int screenHeight = Resources.getSystem().getDisplayMetrics().heightPixels;
     private TextView scoreTxt;
 
-    //private View layout = findViewById(R.id.gameScreen);
     AnimatedView mAnimatedView = null;
 
+    // Ensures screen is always landscape
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +68,7 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_game);
+
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
@@ -84,12 +77,12 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
         mAnimatedView = new AnimatedView(this);
         layout.addView(mAnimatedView);
 
-
+        // Puts timer and score on screen
         timerTxt = findViewById(R.id.timerText);
         scoreTxt = findViewById(R.id.scoreText);
-
         Log.d(TAG, "Created screen");
 
+        // Gets info from activity_instructions
         Intent intent = getIntent();
         if (intent.getExtras() != null)
         {
@@ -111,6 +104,7 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
     // >>>>>>>>>> Timer <<<<<<<<<< //
     public void gameTimer()
     {
+        // Counts down in second increments
         CountDownTimer countDown = new CountDownTimer(timeLeft, 1000) {
             @Override
             public void onTick(long millisUntilFinished)
@@ -133,18 +127,19 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
 
     private void updateTimer()
     {
+        // Makes timer display in minutes:seconds
         int min = (int) (timeLeft / 1000) / 60;
         int sec = (int) (timeLeft/ 1000) % 60;
 
         String formattedTimer = String.format(Locale.getDefault(), "%02d:%02d", min, sec);
 
         timerTxt.setText(formattedTimer);
-
     }
 
     // >>>>>>>>>> End screen <<<<<<<<< //
     public void endScreen()
     {
+        // When game ends user can send a text to their friend or just go back to the main menu
         Log.d(TAG, "Game over");
         database_helper databaseObj = new database_helper(this);
 
@@ -182,6 +177,7 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
     // >>>>>>>>>> SMS <<<<<<<<<<< //
     public void text(String number)
     {
+        // Sends a text to the number user inputs on end screen
         SmsManager sendText = SmsManager.getDefault();
         String message = "Hey I just got a score of " + finalScore + " on Holy Ship, can you beat my score?";
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED)
@@ -214,7 +210,6 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 
     public class AnimatedView extends View {
@@ -263,11 +258,13 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
 
         public void createItem(Canvas canvas)
         {
+            // Makes yellow items for the player to catch
             int radius = 10;
             Paint yellow = new Paint();
             yellow.setColor(Color.YELLOW);
             Random random = new Random();
 
+            // Randomly places objects on screen
             itemY =  random.nextInt(screenHeight);
             itemX = random.nextInt(screenWidth);
 
@@ -276,6 +273,8 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
 
         @Override
         protected void onDraw(Canvas canvas) {
+            // Draws the player and items
+            //TODO: Sort item creation
             canvas.drawCircle(boatY, boatX, RADIUS, grey);//for rectangle: left, top, right, bottom, colour
 
             createItem(canvas);
@@ -284,12 +283,10 @@ public class activity_game extends AppCompatActivity implements SensorEventListe
 
             invalidate();
 
-
-            // need to call invalidate each time, so that the view continuously draws
-
         }
         public void increaseScore()
         {
+            // If player intersects with an object, increase their score
             if (boatX == itemX && boatY == itemY)
             {
                 finalScore += 5;
