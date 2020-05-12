@@ -76,4 +76,28 @@
         app:layout_constraintTop_toBottomOf="@+id/permsBttn"
         app:layout_constraintVertical_bias="1.0" />
 
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="149dp"
+        android:layout_height="192dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.141"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/coins" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="158dp"
+        android:layout_height="141dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.923"
+        app:srcCompat="@drawable/timer" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
